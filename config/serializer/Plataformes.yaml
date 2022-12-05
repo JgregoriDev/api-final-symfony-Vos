@@ -1,0 +1,9 @@
+App\Entity\Plataforma:
+    attributes:
+        id:
+            groups: ['plataformes']
+        plataforma:
+            groups: ['plataformes']
+        plataforma_videojocs:
+            groups: ['plataformes']
+    

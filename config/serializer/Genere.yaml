@@ -1,0 +1,8 @@
+# config/serializer/Movie.yaml
+App\Entity\Genere:
+    attributes:
+        id:
+            groups: ['genere']
+        genere:
+            groups: ['genere']
+    

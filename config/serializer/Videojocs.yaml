@@ -1,0 +1,20 @@
+# config/serializer/Movie.yaml
+App\Entity\Videojoc:
+    attributes:
+        id:
+            groups: ['videojocs']
+        titul:
+            groups: ['videojocs']
+        descripcio:
+            groups: ['videojocs']
+        preu:
+            groups: ['videojocs']
+        fechaEstreno:
+            groups: ['videojocs']
+        portada:
+            groups: ['videojocs']
+        cantitat:
+            groups: ['videojocs']
+        generes:
+            groups: ['videojocs']
+   

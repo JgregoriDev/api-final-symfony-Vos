@@ -1,0 +1,8 @@
+App\Entity\Plataforma:
+    attributes:
+        id:
+            groups: ['plataforma']
+        plataforma:
+            groups: ['plataforma']
+        
+    

@@ -1,0 +1,12 @@
+App\Entity\Votacio:
+    attributes:
+        id:
+            groups: ['votacio']
+        votacio:
+            groups: ['votacio']
+        missatge:
+            groups: ['votacio']
+        usuari_votacio:
+            groups: ['votacio']
+        
+        

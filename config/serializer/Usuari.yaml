@@ -1,0 +1,13 @@
+App\Entity\Usuari:
+    attributes:
+        id:
+            groups: ['usuari']
+        email:
+            groups: ['usuari']
+        roles:
+             groups: ['usuari']
+        ban:
+             groups: ['usuari']
+        # avatar:
+        #     groups: ['usuari']
+

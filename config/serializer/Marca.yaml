@@ -1,0 +1,9 @@
+App\Entity\Marca:
+    attributes:
+        id:
+            groups: ['marca']
+        marca:
+            groups: ['marca']
+        marcaPlataforma:
+            groups: ['marca']
+    

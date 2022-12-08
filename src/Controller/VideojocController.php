@@ -19,9 +19,11 @@ use Faker\Factory;
 use App\Entity\Usuari;
 use App\Entity\Votacio;
 use App\Form\FiltrarPerPreuType;
+use App\Repository\GenereRepository;
+use App\Repository\PlataformaRepository;
 use DateTime;
 use Doctrine\ORM\EntityManager;
-
+use App\Entity\Plataforma;
 /**
  * @Route("/api/v1")
  */
@@ -156,7 +158,7 @@ class VideojocController extends AbstractFOSRestController
      * @Rest\Post(path="/videojoc/nou", name="api_insertar_joc")
      * @Rest\View(serializerGroups={"videojoc","genere","plataforma"}, serializerEnableMaxDepthChecks=true)
      */
-    public function insertarVideojoc(EntityManagerInterface $emi, Request $request, SluggerInterface $slugger)
+    public function insertarVideojoc(EntityManagerInterface $emi, GenereRepository $gr, PlataformaRepository $pr, Request $request, SluggerInterface $slugger)
     {
         $videojoc = new Videojoc();
         $form = $this->createForm(VideojocType::class, $videojoc);
@@ -184,7 +186,27 @@ class VideojocController extends AbstractFOSRestController
                 $videojoc->setPortada($faker->imageUrl(640, 480, 'animals', true));
             }
 
+            $generes = json_decode($form->get("generes")->getData());
+            $plataformes = json_decode($form->get("videojoc_plataforma")->getData());
+            if($generes!==null && is_array($generes)){
+
+                foreach ($plataformes as $plataforma) {
+                    $plataforma = $pr->find($plataforma->id) ?? '';
+                    if($plataforma!=='')
+                    $videojoc->addVideojocPlataforma($plataforma);
+                }
+            }
+            var_dump($plataformes);
+            if($plataformes!==null && is_array($plataformes)){
+
+                foreach ($plataformes as $plataforma) {
+                    $plataforma = $pr->find($plataforma->id) ?? '';
+                    if($plataforma!=='')
+                    $videojoc->addVideojocPlataforma($plataforma);
+                }
+            }
             $videojoc->setFechaEstreno(new DateTime($data));
+            //  var_dump($videojoc);
             $emi->persist($videojoc);
             $emi->flush();
             return ($this->view(["Title" => "Videojoc pujat de manera satisfactoria", "Videjoc" => $videojoc], Response::HTTP_CREATED));
@@ -204,7 +226,7 @@ class VideojocController extends AbstractFOSRestController
         }
         $form = $this->createForm(VideojocType::class, $videojoc);
         $form->handleRequest($request);
-
+        // a guardar para verlo , gracias genio saludo dvar_dump($form->getData());
         if ($form->isSubmitted() && $form->isValid()) {
             $brochureFile = $form->get('portada')->getData();
             if ($brochureFile) {
@@ -257,7 +279,7 @@ class VideojocController extends AbstractFOSRestController
 
     /**
      * @Rest\Get(path="/videojoc/{id}/comentaris", name="api_llistar_comentaris")
-     * @Rest\View(serializerGroups={"videojoc","votacio","usuari"}, serializerEnableMaxDepthChecks=true)
+     * @Rest\View(serializerGroups={"videojoc","votacio","usuari","generes"}, serializerEnableMaxDepthChecks=true)
      */
     public function obtindreComentarisVideojocs(int $id, VotacioRepository $emi)
     {
@@ -267,6 +289,22 @@ class VideojocController extends AbstractFOSRestController
             return $this->createNotFoundException();
         }
         return $votacions;
+    }
+
+     /**
+     * @Rest\Get(path="/videojoc/plataforma/{id}", name="api_llistar_jocs_plataforma_get")
+     * @Rest\View(serializerGroups={"videojoc","genere","plataforma"}, serializerEnableMaxDepthChecks=true)
+     */    
+    public function conseguirVideojocPerFiltres(int $id,VideojocRepository $vr, Request $request)
+    {
+        $genere=$sort = $request->query->get("genere") ?? 0;
+        $result=$vr->findByPlataformaVideojocAndGenere($id,$genere);
+        if(!$result){
+            $this->createNotFoundException();
+        }
+
+        // var_dump($videojocs);
+        return $this->view(["Titol" => "Plataforma", "Resultat" => $result], 200);
     }
 
     /**
@@ -290,7 +328,7 @@ class VideojocController extends AbstractFOSRestController
             $this->createNotFoundException();
         }
         if ($votacions) {
-            return $this->view(["title" => "No pots tornar a votar " . $usuari->getEmail(), "votacio" => $votacions], Response::HTTP_BAD_REQUEST);
+            return $this->view(["title" => "No pots tornar a votar " . $usuari->getEmail()." ja que ja has votat", "votacio" => $votacions], Response::HTTP_BAD_REQUEST);
         }
         $votacio = new Votacio();
         $form = $this->createForm(VotacioType::class, $votacio);

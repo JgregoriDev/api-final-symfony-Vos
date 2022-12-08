@@ -4,6 +4,7 @@ namespace App\Form;
 
 use App\Entity\Videojoc;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CollectionType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
@@ -40,8 +41,8 @@ class VideojocType extends AbstractType
             ])
             ->add('cantitat')
             ->add('preu')
-            ->add('videojoc_plataforma')
-            ->add('generes')
+            ->add('videojoc_plataforma',TextType::class,["mapped"=>false])
+            ->add('generes',TextType::class,["mapped"=>false])
         ;
     }
 

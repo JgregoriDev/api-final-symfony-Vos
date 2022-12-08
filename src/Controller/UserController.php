@@ -138,7 +138,7 @@ class UserController extends AbstractFOSRestController
 
 
     /**
-     * @Rest\Post(path="/v1/pago", name="api_usuari_nou")
+     * @Rest\Post(path="/v1/pago", name="api_usuari_pagament")
      * @Rest\View(serializerGroups={"usuari"}, serializerEnableMaxDepthChecks=true)
      */
     public function nou(EntityManagerInterface $emi,$stripeSK, Request $request,UserPasswordHasherInterface $passwordHasher)

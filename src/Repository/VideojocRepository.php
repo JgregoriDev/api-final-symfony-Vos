@@ -39,6 +39,23 @@ class VideojocRepository extends ServiceEntityRepository
         }
     }
     
+    public function findByPlataformaVideojocAndGenere(int $id,int $gen=0)
+    {
+        $query= $this->createQueryBuilder("v");
+        $gen>0?
+        $query->innerJoin("v.generes", "g")
+        ->andWhere('g.id = :gen')
+        ->setParameter('gen', $gen)
+        :"";
+        return $query
+            ->innerJoin("v.videojoc_plataforma", "p")
+            ->andWhere('p.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getResult();
+            ;
+    }
+
     public function obtindreJocBuscanElTitol(String $titol)
     {
         return $this->createQueryBuilder('v')

@@ -34,10 +34,13 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         - { path: ^/api/v1/videojocs, roles: PUBLIC_ACCESS }
+        - { path: ^/api/v1/videojocs, roles: PUBLIC_ACCESS }
+        
         - { path: ^/api/v1/admin/videojocs/, roles: PUBLIC_ACCESS }
         - { path: ^/api/v1/registrar, roles: PUBLIC_ACCESS }
         - { path: '/api/v1/videojoc/[0-9]{1,3}/comentaris', roles: PUBLIC_ACCESS }
         - { path: '/api/v1/video', roles: PUBLIC_ACCESS }
+        - { path: "^/api/v1/videojoc/plataforma/[0-9]{1,4}", roles: PUBLIC_ACCESS }
         - { path: "^/api/v1/pago", roles: PUBLIC_ACCESS }
         - { path: "^/api/v1/videojoc/buscar/*", roles: PUBLIC_ACCESS }
         - { path: '^/api/v1/videojoc/[0-9]{1,3}/', roles: PUBLIC_ACCESS }

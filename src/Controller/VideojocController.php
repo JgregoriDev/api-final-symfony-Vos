@@ -24,6 +24,7 @@ use App\Repository\PlataformaRepository;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use App\Entity\Plataforma;
+
 /**
  * @Route("/api/v1")
  */
@@ -188,21 +189,21 @@ class VideojocController extends AbstractFOSRestController
 
             $generes = json_decode($form->get("generes")->getData());
             $plataformes = json_decode($form->get("videojoc_plataforma")->getData());
-            if($generes!==null && is_array($generes)){
+            if ($generes !== null && is_array($generes)) {
 
                 foreach ($plataformes as $plataforma) {
                     $plataforma = $pr->find($plataforma->id) ?? '';
-                    if($plataforma!=='')
-                    $videojoc->addVideojocPlataforma($plataforma);
+                    if ($plataforma !== '')
+                        $videojoc->addVideojocPlataforma($plataforma);
                 }
             }
             var_dump($plataformes);
-            if($plataformes!==null && is_array($plataformes)){
+            if ($plataformes !== null && is_array($plataformes)) {
 
                 foreach ($plataformes as $plataforma) {
                     $plataforma = $pr->find($plataforma->id) ?? '';
-                    if($plataforma!=='')
-                    $videojoc->addVideojocPlataforma($plataforma);
+                    if ($plataforma !== '')
+                        $videojoc->addVideojocPlataforma($plataforma);
                 }
             }
             $videojoc->setFechaEstreno(new DateTime($data));
@@ -291,20 +292,25 @@ class VideojocController extends AbstractFOSRestController
         return $votacions;
     }
 
-     /**
+    /**
      * @Rest\Get(path="/videojoc/plataforma/{id}", name="api_llistar_jocs_plataforma_get")
      * @Rest\View(serializerGroups={"videojoc","genere","plataforma"}, serializerEnableMaxDepthChecks=true)
-     */    
-    public function conseguirVideojocPerFiltres(int $id,VideojocRepository $vr, Request $request)
+     */
+    public function conseguirVideojocPerFiltres(int $id, VideojocRepository $vr, Request $request)
     {
-        $genere=$sort = $request->query->get("genere") ?? 0;
-        $result=$vr->findByPlataformaVideojocAndGenere($id,$genere);
-        if(!$result){
+        $genere = $sort = (int)$request->query->get("genere") ?? 0;
+        var_dump($genere);
+        if (!is_int($genere)) {
+            return $this->view(["Titol" => "Error", "Resultat" => "Error el genere ha de ser un valor numeric"], Response::HTTP_BAD_REQUEST);
+        }
+        var_dump($genere);
+        $result = $vr->findByPlataformaVideojocAndGenere($id, $genere);
+        if (!$result) {
             $this->createNotFoundException();
         }
 
         // var_dump($videojocs);
-        return $this->view(["Titol" => "Plataforma", "Resultat" => $result], 200);
+        return $this->view(["Titol" => "Videojoc amb plataforma $id", "Resultat" => $result], 200);
     }
 
     /**
@@ -328,7 +334,7 @@ class VideojocController extends AbstractFOSRestController
             $this->createNotFoundException();
         }
         if ($votacions) {
-            return $this->view(["title" => "No pots tornar a votar " . $usuari->getEmail()." ja que ja has votat", "votacio" => $votacions], Response::HTTP_BAD_REQUEST);
+            return $this->view(["title" => "No pots tornar a votar " . $usuari->getEmail() . " ja que ja has votat", "votacio" => $votacions], Response::HTTP_BAD_REQUEST);
         }
         $votacio = new Votacio();
         $form = $this->createForm(VotacioType::class, $votacio);

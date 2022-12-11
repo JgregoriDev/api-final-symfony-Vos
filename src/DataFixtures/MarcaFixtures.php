@@ -24,7 +24,7 @@ class MarcaFixtures extends Fixture
         $marca->setMarca("Nintendo");
         $manager->persist($marca);
         $marca=new Marca();
-        $marca->setMarca("Windows");
+        $marca->setMarca("Microsoft");
         $manager->persist($marca);
         $marca=new Marca();
         $marca->setMarca("Sony");

@@ -19,7 +19,22 @@ class GeneresFixtures extends Fixture
     {
         // $product = new Product();
         // $manager->persist($product);
-        for ($i=0; $i < 8; $i++) { 
+        $genere=new Genere();
+        $genere->setGenere("vaquers");
+        $manager->persist($genere);
+        $genere=new Genere();
+        $genere->setGenere("acció");
+        $manager->persist($genere);
+        $genere=new Genere();
+        $genere->setGenere("aventura");
+        $manager->persist($genere);
+        $genere=new Genere();
+        $genere->setGenere("estratègia");
+        $manager->persist($genere);
+        $genere=new Genere();
+        $genere->setGenere("rol");
+        $manager->persist($genere);
+        for ($i=0; $i < 4; $i++) { 
             $genere=new Genere();
             $genere->setGenere($this->faker->word());
             $manager->persist($genere);

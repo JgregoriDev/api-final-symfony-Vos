@@ -14,7 +14,7 @@ use App\Form\PlataformesType;
 use App\Repository\GenereRepository;
 use App\Repository\PlataformaRepository;
 use App\Repository\VideojocRepository;
-
+use App\Entity\Videojoc;
 /**
  * @Route("/api/v1")
  */
@@ -34,13 +34,30 @@ class PlataformaController extends AbstractFOSRestController
      * @Rest\Get(path="/plataforma/{id}", name="api_conseguir_plataforma")
      * @Rest\View(serializerGroups={"plataformes","videojocs","genere"}, serializerEnableMaxDepthChecks=true)
      */
-    public function conseguir(int $id,PlataformaRepository $pr,GenereRepository $gr, VideojocRepository $vr,Request $request)
+    public function conseguir(int $id, PlataformaRepository $pr, GenereRepository $gr, VideojocRepository $vr, Request $request)
     {
-        $genereId=(int)$request->query->get('genere')??null;
+        $genereId = (int)$request->query->get('genere') ?? null;
+        $plataforma=$pr->find($id);
+        foreach ($plataforma->getPlataformaVideojocs() as $videojoc) {
+            $this->editarPath($videojoc);
+        }
         
+
         return $pr->find($id);
     }
-    
+
+
+    public function editarPath(Videojoc $videojoc): void
+        {
+            if (!str_contains($videojoc->getPortada(), "http")) {
+                // $videojoc->setPortada("http://vos.es/uploads/portades_directory/" . $videojoc->getPortada());
+                // $videojoc->setPortada("http://app.11josep.daw.iesevalorpego.es/uploads/portades_directory/" . $videojoc->getPortada());
+                if ($_SERVER['SERVER_NAME'] === "vos.es")
+                    $videojoc->setPortada($this->getParameter('localhost') . $videojoc->getPortada());
+                if ($_SERVER['SERVER_NAME'] === "app.11josep.daw.iesevalorpego.es")
+                    $videojoc->setPortada($this->getParameter('extern') . $videojoc->getPortada());
+            }
+        }
     /**
      * @Rest\Post(path="/plataforma/nou", name="api_insertar_plataforma")
      * @Rest\View(serializerGroups={"plataforma"}, serializerEnableMaxDepthChecks=true)
@@ -85,7 +102,7 @@ class PlataformaController extends AbstractFOSRestController
      */
     public function borrarPlataforma(int $id, EntityManagerInterface $emi)
     {
-        $plataforma = $emi->find(Plataforma::class,$id);
+        $plataforma = $emi->find(Plataforma::class, $id);
         if (!$plataforma) {
             $this->createNotFoundException();
         }

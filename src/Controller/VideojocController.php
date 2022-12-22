@@ -24,6 +24,7 @@ use App\Repository\PlataformaRepository;
 use DateTime;
 use Doctrine\ORM\EntityManager;
 use App\Entity\Plataforma;
+use App\Entity\Genere;
 
 /**
  * @Route("/api/v1")
@@ -151,6 +152,9 @@ class VideojocController extends AbstractFOSRestController
         $form->handleRequest($request);
 
         $videojocs = $vr->filterByPrice($min, $max);
+		foreach($videojocs as $videojoc){
+            $this->editarPath($videojoc);
+        }
         return $this->view(["Title" => "Videojoc per preu $min i $max", "cantitat" => count($videojocs), "Videojoc" => $videojocs]);
         // return $this->view(["Title" => "No hi han resultats", "Videojoc" => "Valor buit"]);
     }
@@ -189,30 +193,24 @@ class VideojocController extends AbstractFOSRestController
 
             $generes = json_decode($form->get("generes")->getData());
             $plataformes = json_decode($form->get("videojoc_plataforma")->getData());
-            if ($generes !== null && is_array($generes)) {
-
-                foreach ($plataformes as $plataforma) {
-                    $plataforma = $pr->find($plataforma->id) ?? '';
-                    if ($plataforma !== '')
-                        $videojoc->addVideojocPlataforma($plataforma);
-                }
-            }
-            var_dump($plataformes);
-            if ($plataformes !== null && is_array($plataformes)) {
-
-                foreach ($plataformes as $plataforma) {
-                    $plataforma = $pr->find($plataforma->id) ?? '';
-                    if ($plataforma !== '')
-                        $videojoc->addVideojocPlataforma($plataforma);
-                }
-            }
             $videojoc->setFechaEstreno(new DateTime($data));
-            //  var_dump($videojoc);
+        
+            foreach ($plataformes as $plataforma) {
+        $p = $emi->getRepository(Plataforma::class)->findOneBy(["plataforma" => $plataforma]);
+                if($p)$videojoc->addVideojocPlataforma($p);
+            }
+            foreach ($generes as $genere) {
+                
+                $g = $emi->getRepository(Genere::class)->findOneBy(["genere" => $genere]);
+                if($g)$videojoc->addGenere($g);
+            }
+
+
             $emi->persist($videojoc);
             $emi->flush();
-            return ($this->view(["Title" => "Videojoc pujat de manera satisfactoria", "Videjoc" => $videojoc], Response::HTTP_CREATED));
+            return ($this->view(["Title" => "Videojoc pujat de manera satisfactoria", "Videjoc" => $videojoc], Response::HTTP_OK));
         }
-        return $this->view($form, Response::HTTP_BAD_REQUEST);
+        return $this->view(["Title"=>"Error","result"=>$form], Response::HTTP_BAD_REQUEST);
     }
 
     /**
@@ -227,7 +225,6 @@ class VideojocController extends AbstractFOSRestController
         }
         $form = $this->createForm(VideojocType::class, $videojoc);
         $form->handleRequest($request);
-        // a guardar para verlo , gracias genio saludo dvar_dump($form->getData());
         if ($form->isSubmitted() && $form->isValid()) {
             $brochureFile = $form->get('portada')->getData();
             if ($brochureFile) {
@@ -299,16 +296,18 @@ class VideojocController extends AbstractFOSRestController
     public function conseguirVideojocPerFiltres(int $id, VideojocRepository $vr, Request $request)
     {
         $genere = $sort = (int)$request->query->get("genere") ?? 0;
-        var_dump($genere);
         if (!is_int($genere)) {
             return $this->view(["Titol" => "Error", "Resultat" => "Error el genere ha de ser un valor numeric"], Response::HTTP_BAD_REQUEST);
         }
-        var_dump($genere);
+        // var_dump($genere);
         $result = $vr->findByPlataformaVideojocAndGenere($id, $genere);
         if (!$result) {
             $this->createNotFoundException();
         }
-
+		
+		foreach($result as $videojoc){
+            $this->editarPath($videojoc);
+        }
         // var_dump($videojocs);
         return $this->view(["Titol" => "Videojoc amb plataforma $id", "Resultat" => $result], 200);
     }

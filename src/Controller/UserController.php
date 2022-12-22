@@ -90,7 +90,7 @@ class UserController extends AbstractFOSRestController
     }
 
     /**
-     * @Rest\Post(path="/v1/usuari/{id}/banejar", name="api_ban_usuari")
+     * @Rest\Put(path="/v1/usuari/{id}/banejar", name="api_ban_usuari")
      * @Rest\View(serializerGroups={"usuari"}, serializerEnableMaxDepthChecks=true)
      */
     public function banejarUsuari(int $id, EntityManagerInterface $emi, Request $request, UserPasswordHasherInterface $passwordHasher)
@@ -155,7 +155,7 @@ class UserController extends AbstractFOSRestController
     $preu=(int)$_POST['preu']??'';
     if(is_int($preu)){
             Stripe::setApiKey($stripeSK);
-            $YOUR_DOMAIN = 'http://localhost:3000/';
+            $YOUR_DOMAIN = 'https://11josep.daw.iesevalorpego.es/';
             $checkout_session = Session::create([
                 'customer_email' => 'customer@example.com',
                 'submit_type' => 'pay',
@@ -175,8 +175,8 @@ class UserController extends AbstractFOSRestController
                     'quantity'   => 1,
                 ]],
                 'mode' => 'payment',
-                'success_url' => $YOUR_DOMAIN . 'pago-realitzat',
-                'cancel_url' => $YOUR_DOMAIN . 'pago-rechazat',
+                'success_url' => $YOUR_DOMAIN . 'FAQ',
+                'cancel_url' => $YOUR_DOMAIN . 'denegat',
             ]);
             if($checkout_session->url===$YOUR_DOMAIN . 'pago-realitzat'){
                 $compra=new Comprar();
@@ -205,5 +205,41 @@ class UserController extends AbstractFOSRestController
 
         return $this->view([$_POST]);
     
+    }
+	
+function calculateOrderAmount(array $items): int {
+    return $items[0]->preu*100;
+}
+	
+    /**
+     * @Rest\Post(path="/v1/payment", name="api_user_pay")
+     * @Rest\View(serializerGroups={"usuari"}, serializerEnableMaxDepthChecks=true)
+     */
+    public function PaymentIntentNou(EntityManagerInterface $emi, $stripeSK, Request $request)
+    {
+        # code...
+
+
+        //    return $this->view([$_POST])
+        // $arrayProductes=$_POST['arrayProductes']??[];
+        // $productes=$_POST['productes']??'';
+        // $preu=(int)$_POST['preu']??'';
+        Stripe::setApiKey($stripeSK);
+		//$jsonStr = file_get_contents('php://input');
+    	//$jsonObj = json_decode($jsonStr);
+		$content = $request->getContent();
+    	$jsonObj = json_decode($content);
+        $paymentIntent = \Stripe\PaymentIntent::create([
+               'amount' => $this->calculateOrderAmount($jsonObj->items),
+            'currency' => 'eur',
+            'automatic_payment_methods' => [
+                'enabled' => true,
+            ],
+        ]);
+
+        $output = [
+            'clientSecret' => $paymentIntent->client_secret,
+        ];
+        echo json_encode($output);
     }
 }
